@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loja — Aba de Camisetas</title>
+  <meta name="description" content="Catálogo de camisetas da loja com compra direta pelo WhatsApp." />
+  <style>
+    :root{
+      --bg:#0b0c10;
+      --card:#12141a;
+      --muted:#a1a1aa;
+      --text:#e7e7ea;
+      --brand:#22c55e;
+      --accent:#2dd4bf;
+      --ring: rgba(45, 212, 191, .35);
+      --radius: 16px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(0, 0, 0, 0.08), transparent),
+                  radial-gradient(800px 400px at 100% 0%, rgba(0, 0, 0, 0.08), transparent),
+                  var(--bg);
+      color:var(--text);
+      font: 400 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans";
+    }
+
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: saturate(120%) blur(10px);
+      background: linear-gradient(180deg, rgba(11,12,16,.85), rgba(11,12,16,.5));
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .container{max-width:1100px; margin:0 auto; padding:20px}
+    .title{ font-size: clamp(22px, 4vw, 36px); font-weight:800; }
+    .subtitle{color:var(--muted); font-size:14px}
+
+    .filters{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap }
+    .filters button{
+      padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,.08);
+      background:#0f1116; color:var(--text); cursor:pointer; font-weight:600;
+    }
+    .filters button.active{ border-color:var(--accent); background:#1b1e25; }
+
+    .grid{
+      display:grid; gap:18px; margin-top:22px;
+      grid-template-columns: repeat( auto-fit, minmax(240px, 1fr) );
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0)) , var(--card);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius);
+      overflow:hidden;
+      display:flex; flex-direction:column;
+      transition: transform .18s ease;
+    }
+    .card:hover{ transform: translateY(-2px); }
+    .thumb{ aspect-ratio:4/3; overflow:hidden; }
+    .thumb img{ width:100%; height:100%; object-fit:cover; }
+    .body{ padding:14px; display:flex; flex-direction:column; gap:8px }
+    .name{ font-weight:800 }
+    .desc{ color:var(--muted); font-size:14px }
+    .price{ font-size:18px; font-weight:800 }
+    .controls{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px }
+    select, .qty{
+      padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.08);
+      background:#0f1116; color:var(--text);
+    }
+    .qty{ width:80px }
+
+    .wa{
+      margin-top:10px; padding:12px; border-radius:12px; border:none; cursor:pointer;
+      font-weight:800; background:linear-gradient(180deg, #22c55e, #16a34a); color:#051b0c;
+    }
+
+    footer{ text-align:center; color:var(--muted); padding:40px 20px }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="title">WRC: Camisetas</div>
+      <div class="subtitle">Escolha o tamanho desejado e finalize direto no WhatsApp</div>
+      <div class="filters">
+        <button data-size="all" class="active">Todos</button>
+        <button data-size="P">P</button>
+        <button data-size="M">M</button>
+        <button data-size="G">G</button>
+        <button data-size="GG">GG</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="grid" class="grid"></section>
+  </main>
+
+  <footer>
+    © <span id="year"></span> WRC IMPORTSS. Todos os direitos reservados.
+  </footer>
+
+  <script>
+    const WHATSAPP_PHONE = "5548996148810"; // seu número
+
+    const products = [
+      { id:"C001", name:"Camiseta DIESEL branca", price:64.99, description:"100% algodão, várias cores.", sizes:["P"], image:"$64,99.jpg" },
+      { id:"C002", name:"Camiseta BOSS branca", price:64.99, description:"Modelagem ampla e moderna.", sizes:["M"], image:"$64,99 (1).jpg" },
+      { id:"C003", name:"Camiseta Estampada", price:64.99, description:"Estampa exclusiva streetwear.", sizes:["G"], image:"$64,99 (2).jpg" },
+      { id:"C004", name:"Camiseta DryFit", price:64.99, description:"Ideal para treinos, tecido respirável.", sizes:["GG"], image:"$64,99.jpg" }
+    ];
+
+    const grid=document.getElementById('grid');
+    function render(items){
+      grid.innerHTML = items.map(p=>`
+        <article class="card" data-id="${p.id}" data-name="${p.name}">
+          <div class="thumb"><img src="${p.image}" alt="${p.name}" loading="lazy"></div>
+          <div class="body">
+            <div class="name">${p.name}</div>
+            <p class="desc">${p.description}</p>
+            <div class="price">R$ ${p.price.toFixed(2).replace('.',',')}</div>
+            <div class="controls">
+              <select class="size">
+                ${p.sizes.map(s=>`<option>${s}</option>`).join('')}
+              </select>
+              <input type="number" class="qty" value="1" min="1">
+            </div>
+            <button class="wa">Comprar no WhatsApp</button>
+          </div>
+        </article>
+      `).join('');
+
+      document.querySelectorAll('.wa').forEach(btn=>btn.addEventListener('click',sendWA));
+    }
+
+    function sendWA(ev){
+      const card=ev.currentTarget.closest('.card');
+      const id=card.dataset.id;
+      const name=card.dataset.name;
+      const size=card.querySelector('.size').value;
+      const qty=card.querySelector('.qty').value;
+      const price=card.querySelector('.price').textContent;
+      const msg=`Olá! Tenho interesse em *${name}* (código: ${id})%0ATamanho: ${size}%0AQuantidade: ${qty}%0APreço: ${price}`;
+      window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${msg}`,'_blank');
+    }
+
+    // filtro por tamanho
+    const filterBtns=document.querySelectorAll('.filters button');
+    filterBtns.forEach(btn=>btn.addEventListener('click',()=>{
+      filterBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const size=btn.dataset.size;
+      if(size==='all') render(products);
+      else render(products.filter(p=>p.sizes.includes(size)));
+    }));
+
+    document.getElementById('year').textContent=new Date().getFullYear();
+
+    render(products);
+  </script>
+</body>
+</html>
